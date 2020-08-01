@@ -26,7 +26,9 @@ class TotalizerSource extends RichParallelSourceFunction[DataValue] {
   /** run() continuously emits DataValue by emitting them through the SourceContext. */
   override def run(srcCtx: SourceContext[DataValue]): Unit = {
 
-    var name = "FLW001.FLOW_TOTAL"
+    val taskIdx = this.getRuntimeContext.getIndexOfThisSubtask
+
+    var name = s"FLW0$taskIdx.FLOW_TOTAL"
 
     var total = 1000;
     val delta = 20;
@@ -43,9 +45,8 @@ class TotalizerSource extends RichParallelSourceFunction[DataValue] {
       srcCtx.collect(DataValue(name, total, curTime))
 
       // wait for 100 ms
-      Thread.sleep(10 * 1000)
+      Thread.sleep(1 * 1000)
     }
-
   }
 
   /** Cancels this SourceFunction. */

@@ -11,11 +11,14 @@ organization := "org.example"
 
 ThisBuild / scalaVersion := "2.12.7"
 
-val flinkVersion = "1.7.0"
+val flinkVersion = "1.11.0"
 
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided")
+
+// https://mvnrepository.com/artifact/org.apache.flink/flink-clients
+libraryDependencies += "org.apache.flink" %% "flink-clients" % "1.11.1"
 
 lazy val root = (project in file(".")).
   settings(

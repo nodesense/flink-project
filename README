@@ -4,3 +4,29 @@ To run and test your application use SBT invoke: 'sbt run'
 
 In order to run your application from within IntelliJ, you have to select the classpath of the 'mainRunner' module in the run/debug configurations.
 Simply open 'Run -> Edit configurations...' and then select 'mainRunner' from the "Use classpath of module" dropbox. 
+
+Stream values
+
+(W1, V1, T1, 100)
+(W1, V1, T2, 110)
+(W1, V1, T3, 120)
+(W1, V1, T4, 130)
+
+(W2, V1, T1, 140)
+(W2, V1, T2, 110)
+(W3, V1, T3, 120)
+(W2, V1, T4, 160)
+
+130 - 100 = 30 (DELTA)
+T4/Round of Time of Clock - 30 as output as stream
+
+ProcessFunction that can deal the previouse values
+
+Totalizer for cumulative - 10000
+
+10000 + 30 = 10030, set as previous value
+
+160 - 140 = 20
+
+10030 + 20 = 10050
+
