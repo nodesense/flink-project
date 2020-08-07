@@ -25,7 +25,12 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= flinkDependencies
   )
 
-assembly / mainClass := Some("org.example.Job")
+// assembly / mainClass := Some("org.example.Job")
+
+assembly / mainClass := Some("org.example.FlinkCumulative")
+
+mainClass in (Compile, packageBin) := Some("org.example.FlinkCumulative")
+
 
 // make run command include the provided dependencies
 Compile / run  := Defaults.runTask(Compile / fullClasspath,

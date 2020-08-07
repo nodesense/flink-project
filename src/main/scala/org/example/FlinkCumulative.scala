@@ -46,7 +46,6 @@ object FlinkCumulative {
     val sensorData: DataStream[DataValue] = env
       // SensorSource generates random temperature readings
       .addSource(new TotalizerSource)
-
       // assign timestamps and watermarks which are required for event time
       .assignTimestampsAndWatermarks(new DataValueTimeAssigner)
 
@@ -57,7 +56,6 @@ object FlinkCumulative {
       //.map(v => (v.name, Cumulative(v.name, v.value, v.timestamp)))
       //.keyBy(_.name)
       //.process(new CountWithTimeoutFunction())
-
 
     cumulativePerWindow.print();
 
