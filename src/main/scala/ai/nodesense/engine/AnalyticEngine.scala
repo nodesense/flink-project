@@ -1,10 +1,14 @@
-package org.example
+package ai.nodesense.engine
+
+import ai.nodesense.analytics.{CumulativeAnalytic, StreamAnalytic}
+import ai.nodesense.models.{Analytic, AnalyticContext, AnalyticDefinition}
+import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
 import ai.nodesense.analytics.{CumulativeAnalytic, StreamAnalytic}
-import ai.nodesense.engine.AnalyticEngine
 import ai.nodesense.models.{Analytic, AnalyticContext, AnalyticDefinition}
 import org.example.util.{DataValue2, DataValueTimeAssigner, SensorReading, SensorSource, SensorTimeAssigner, TotalizerSource}
 import org.apache.flink.api.common.functions.{AggregateFunction, ReduceFunction}
@@ -34,7 +38,39 @@ import org.apache.flink.util.Collector
 
 
 
-object Main extends  App {
-  val engine = new AnalyticEngine()
-  engine.run()
+class AnalyticEngine {
+
+  def runAnalytic(context: AnalyticContext) = {
+    // set up the streaming execution environment
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+
+    // checkpoint every 10 seconds
+    env.getCheckpointConfig.setCheckpointInterval(10 * 1000)
+
+    // use event time for the application
+    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    // configure watermark interval
+    env.getConfig.setAutoWatermarkInterval(1000L)
+
+    val streamAnalytic: StreamAnalytic = context.analytic.name match  {
+      case "CumulativeAnalytic" => new CumulativeAnalytic(context, env)
+      case _ => null
+    }
+
+    if (streamAnalytic != null) {
+      streamAnalytic.run()
+    }
+
+    env.execute()
+  }
+
+  def run() = {
+    val analytic = Analytic("1", "CumulativeAnalytic");
+    val analyticDefinition = AnalyticDefinition("1", "FlowCum")
+
+    val context = AnalyticContext(analytic, analyticDefinition)
+
+    runAnalytic(context)
+  }
+
 }
