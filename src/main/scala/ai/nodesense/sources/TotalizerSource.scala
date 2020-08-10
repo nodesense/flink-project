@@ -1,7 +1,8 @@
-package org.example.util
+package ai.nodesense.sources
 
 import java.util.Calendar
 
+import ai.nodesense.models.DataValue
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction
@@ -9,22 +10,13 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceCont
 
 import scala.util.Random
 
-case class DataValue2(name: String, value: Double, timestamp: Long)
-
-class DataValueTimeAssigner
-  extends BoundedOutOfOrdernessTimestampExtractor[DataValue2](Time.seconds(5)) {
-
-  /** Extracts timestamp from DataValue. */
-  override def extractTimestamp(r: DataValue2): Long = r.timestamp
-}
-
-class TotalizerSource extends RichParallelSourceFunction[DataValue2] {
+class TotalizerSource extends RichParallelSourceFunction[DataValue] {
 
   // flag indicating whether source is still running.
   var running: Boolean = true
 
   /** run() continuously emits DataValue by emitting them through the SourceContext. */
-  override def run(srcCtx: SourceContext[DataValue2]): Unit = {
+  override def run(srcCtx: SourceContext[DataValue]): Unit = {
 
     val taskIdx = this.getRuntimeContext.getIndexOfThisSubtask
 
@@ -42,7 +34,7 @@ class TotalizerSource extends RichParallelSourceFunction[DataValue2] {
       val curTime = Calendar.getInstance.getTimeInMillis
 
       // emit new DataValue
-      srcCtx.collect(DataValue2(name, total, curTime))
+      srcCtx.collect(DataValue("FL0001", "TOTAL", "FL0001.TOTAL", total, curTime))
 
       // wait for 100 ms
       Thread.sleep(1 * 1000)

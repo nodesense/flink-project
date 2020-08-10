@@ -2,7 +2,7 @@ package org.example
 
 import java.util.Date
 
-import org.example.util.{DataValue, DataValueTimeAssigner, SensorReading, SensorSource, SensorTimeAssigner, TotalizerSource}
+import org.example.util.{DataValue2, DataValueTimeAssigner, SensorReading, SensorSource, SensorTimeAssigner, TotalizerSource}
 import org.apache.flink.api.common.functions.{AggregateFunction, ReduceFunction}
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
@@ -43,7 +43,7 @@ object FlinkCumulative {
     env.getConfig.setAutoWatermarkInterval(1000L)
 
     // ingest sensor stream
-    val sensorData: DataStream[DataValue] = env
+    val sensorData: DataStream[DataValue2] = env
       // SensorSource generates random temperature readings
       .addSource(new TotalizerSource)
       // assign timestamps and watermarks which are required for event time
@@ -73,7 +73,7 @@ case class CumulativeOut(name: String, value:Double, timestamp: Long)
  * end timestamp of the window.
  */
 class CumulativeProcessFunction
-  extends ProcessWindowFunction[DataValue, Cumulative, String, TimeWindow] {
+  extends ProcessWindowFunction[DataValue2, Cumulative, String, TimeWindow] {
 
   private val previousFiringState = new ValueStateDescriptor[Long]("previous-firing", classOf[Long])
 
@@ -82,7 +82,7 @@ class CumulativeProcessFunction
   override def process(
                         key: String,
                         ctx: Context,
-                        vals: Iterable[DataValue],
+                        vals: Iterable[DataValue2],
                         out: Collector[Cumulative]): Unit = {
 
     val previousFiring =   ctx.windowState.getState(previousFiringState)
